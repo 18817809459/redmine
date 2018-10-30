@@ -1,0 +1,289 @@
+{% extends "index.html" %}
+{% block extra-css %}
+    <style>
+        label {
+            font-weight: bold;
+        }
+    </style>
+{% endblock %}
+{% block wrapper %}
+    <div class="row page-titles">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor">项目审批</h3>
+        </div>
+        <div class="col-md-7 align-self-center">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
+                <li class="breadcrumb-item">审核</li>
+                <li class="breadcrumb-item"><a href="{% url 'examine' %}">项目审核</a></li>
+                {% if examine.is_pass == Null %}
+                    <li class="breadcrumb-item active">审批</li>
+                {% else %}
+                    <li class="breadcrumb-item active">查看</li>
+                {% endif %}
+            </ol>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body" style="padding:3.2rem;">
+                        <div class="form-body">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label text-right col-md-2">项目名称</label>
+                                        <div class="col-md-10">
+                                            <span>{{ project.project_name }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label text-right col-md-2">所属部门</label>
+                                        <div class="col-md-10">
+                                            <span>{{ project.department }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label text-right col-md-2">项目类型</label>
+                                        <div class="col-md-10">
+                                            <span>{{ project.project_type }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label text-right col-md-2">流程选择</label>
+                                        <div class="col-md-10">
+                                            <span>{{ project.flow }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% if project.tag == 1 %}
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <div class="form-group row">
+                                            <label class="control-label text-right col-md-2">合同编号</label>
+                                            <div class="col-md-10">
+                                                <span>{{ project.contract_no }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5" style="z-index: -1">
+                                        <div class="form-group row">
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label text-right col-md-2">项目描述</label>
+                                        <div class="col-md-10">
+                                            <span>{{ project.priject_description }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5" style="z-index: -1">
+                                    <div class="form-group row">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label text-right col-md-2">任务托付</label>
+                                        <div class="col-md-10" style="white-space: nowrap;">
+                                        <span>
+                                            {% for user in project_user %}
+                                                {{ user.user }},
+                                            {% endfor %}
+                                        </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5" style="z-index: -1">
+                                    <div class="form-group row">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label text-right col-md-2">开始时间</label>
+                                        <div class="col-md-10">
+                                            <span>{{ project.start_time }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5" style="z-index: -1">
+                                    <div class="form-group row">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label text-right col-md-2">结束时间</label>
+                                        <div class="col-md-10">
+                                            <span>{{ project.end_time }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5" style="z-index: -1">
+                                    <div class="form-group row">
+                                    </div>
+                                </div>
+                            </div>
+                            {% if project.tag == 1 %}
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <div class="form-group row">
+                                            <label class="control-label text-right col-md-2">合同上传</label>
+                                            <div class="col-md-10">
+                                                {% for file in project_file %}
+                                                    <div class="row" style="margin-bottom: 18px">
+                                                        <div class="col-md-7">
+                                                            <span style="margin-bottom: 18px">{{ file.file.name }}</span>
+                                                        </div>
+                                                        <div class="col-md-3"><a href="/media/{{ file.file.file }}"
+                                                                                 download="{{ file.file.name }}">下载</a>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5" style="z-index: -1">
+                                        <div class="form-group row">
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="row">
+                            <div class="col-md-5">
+                                <div class="form-group row">
+                                    <label class="control-label text-right col-md-2">提交人</label>
+                                    <div class="col-md-10">
+                                        <span>{{ examine.created_user }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-5" style="z-index: -1">
+                                <div class="form-group row">
+                                </div>
+                            </div>
+                        </div>
+                        {% if examine.description %}
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label text-right col-md-2">拒绝理由</label>
+                                        <div class="col-md-10">
+                                            <span>{{ examine.description }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5" style="z-index: -1">
+                                    <div class="form-group row">
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if examine.is_pass == Null %}
+                            <form class="form-horizontal" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" name="is_pass" id="type" value="1">
+                                <div class="row" style="padding-bottom: 20px;display: none" id="text">
+                                    <div class="col-md-5">
+                                        <div class="form-group row">
+                                            <label class="control-label col-md-2" style="font-weight: bold;">理由</label>
+                                            <div class="col-md-9">
+                                            <textarea name="description" id="id_description" cols="98"
+                                                      rows="4" maxlength="200" class="form-control"></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5" style="z-index: -1">
+                                        <div class="form-group row">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-actions" style="display: none" id="btn1">
+                                    <button type="submit" class="btn btn-success">保存
+                                    </button>
+                                    <button type="button" class="btn btn-inverse"
+                                            onclick="window.location.href='{% url "examine" %}'">
+                                        返回
+                                    </button>
+                                </div>
+                                <div class="form-actions" id="btn">
+                                    <button type="submit" class="btn btn-success">通过
+                                    </button>
+                                    <button type="button" class="btn btn-info" onclick="change()">拒绝
+                                    </button>
+                                    <button type="button" class="btn btn-inverse"
+                                            onclick="window.location.href='{% url "examine" %}'">
+                                        返回
+                                    </button>
+                                </div>
+                            </form>
+                        {% else %}
+                            <div class="row" style="padding-bottom: 20px">
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label text-right col-md-2">审批状态</label>
+                                        <div class="col-md-10">
+                                            <span>
+                                                {% if examine.is_pass %}
+                                                    通过
+                                                {% else %}
+                                                    未通过
+                                                {% endif %}
+                                                </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5" style="z-index: -1">
+                                    <div class="form-group row">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-inverse"
+                                        onclick="window.location.href='{% url "examine" %}'">
+                                    返回
+                                </button>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function change() {
+            $('input[name="is_pass"]').val(0);
+            $('#text textarea').attr("required", "required");
+            $('#text').show();
+            $('#btn1').show();
+            $('#btn').hide();
+        }
+
+        $(document).ready(function () {
+            if ('{{ errors }}') {
+                setTimeout(function () {
+                    alert("{{ errors }}")
+                }, 400);
+            }
+        })
+    </script>
+{% endblock %}

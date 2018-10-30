@@ -1,0 +1,68 @@
+{% extends 'index.html' %}
+{% load tags %}
+{% block wrapper %}
+    <div class="row page-titles">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor">角色{{ role }}</h3>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body" style="padding:3.6rem;">
+                        <form class="form-horizontal" method="POST">
+                            {% csrf_token %}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>角色名称</label>
+                                            <input name="name" type="text" required class="form-control" value="{{ role.name }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th>
+                                    </th>
+                                    <th>
+                                        新建
+                                    </th>
+                                    <th>
+                                        编辑
+                                    </th>
+                                    <th>
+                                        查看
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% if role %}
+                                    {% permissions_table role.permission.all%}
+                                {% else %}
+                                    {% permissions_table %}
+                                {% endif %}
+                                </tbody>
+                            </table>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-success">保存
+                                </button>
+                                <button type="button" class="btn btn-inverse" onclick="window.location.href='{% url "role" %}'">
+                                    返回
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

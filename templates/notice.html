@@ -1,0 +1,158 @@
+{% extends 'index.html' %}
+{% load tags %}
+{% block wrapper %}
+    <div class="row page-titles">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor">站内信</h3>
+        </div>
+    </div>
+    <div class="container-fluid">
+
+        <!-- ============================================================== -->
+        <!-- Start Page Content -->
+        <!-- ============================================================== -->
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="row">
+                        <div class="col-xlg-2 col-lg-3 col-md-4">
+                            <div class="card-body inbox-panel">
+                                <ul class="list-group list-group-full" id="sidebarnav">
+                                    <li class="list-group-item">
+                                        <a href="?">
+                                            <i class="mdi mdi-view-grid"></i>
+                                            全部
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <a href="?type=0">
+                                            <i class="mdi mdi-gmail"></i>
+                                            项目通知
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <a href="?type=1">
+                                            <i class="mdi mdi-file-document-box"></i>
+                                            任务通知
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item">
+                                        <a href="?type=2">
+                                            <i class="mdi mdi-timelapse"></i>
+                                            延期通知
+                                        </a>
+                                    </li>
+                                    <li class="list-group-item ">
+                                        <a href="?type=3">
+                                            <i class="mdi mdi-send"></i>
+                                            系统通知
+                                        </a>
+                                    </li>
+                                </ul>
+                                <h3 class="card-title m-t-40">标签</h3>
+                                <div class="list-group b-0 mail-list">
+                                    <a href="#" class="list-group-item">
+                                        <span class="fa fa-circle text-success m-r-10"></span>
+                                        项目
+                                    </a>
+                                    <a href="#" class="list-group-item">
+                                        <span class="fa fa-circle text-warning m-r-10"></span>
+                                        任务
+                                    </a>
+                                    <a href="#" class="list-group-item">
+                                        <span class="fa fa-circle text-danger m-r-10"></span>
+                                        延期
+                                    </a>
+                                    <a href="#" class="list-group-item">
+                                        <span class="fa fa-circle text-info m-r-10"></span>
+                                        系统
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xlg-10 col-lg-9 col-md-8 bg-light-part b-l">
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="card-body">
+                                    <div class="btn-group m-b-10 m-r-10" role="group"
+                                         aria-label="Button group with nested dropdown">
+                                        <button type="submit" class="btn btn-secondary font-18"
+                                                style="padding: 10px 12px;"><i
+                                                class="mdi mdi-delete"></i></button>
+                                    </div>
+                                    <button type="button " class="btn btn-secondary m-r-10 m-b-10"
+                                            onclick="location.reload()" style="padding: 10px 12px;"><i
+                                            class="mdi mdi-reload font-18"></i></button>
+                                </div>
+                                <div class="card-body p-t-0">
+                                    <div class="card b-all shadow-none">
+                                        <div class="inbox-center table-responsive">
+                                            <div class="dataTables_wrapper" id="example23_wrapper">
+                                                <table class="table table-hover no-wrap">
+                                                    <tbody>
+                                                    {% for notice in query_sets %}
+                                                        <tr class="unread" style="height: 58px">
+                                                            <td style="width:40px">
+                                                                <div class="checkbox">
+                                                                    <input type="checkbox" id="checkbox{{ notice.id }}"
+                                                                           value="{{ notice.id }}" name="notice">
+                                                                    <label for="checkbox{{ notice.id }}"></label>
+                                                                </div>
+                                                            </td>
+                                                            <td class="max-texts">
+                                                        <span class="label
+                                                        {% if notice.type == 0 %}
+                                                        label-success
+                                                        {% elif notice.type == 1 %}
+                                                        label-warning
+                                                        {% elif notice.type == 2 %}
+                                                        label-danger
+                                                        {% elif notice.type == 3 %}
+                                                        label-info
+                                                        {% endif %}
+                                                          m-r-10"
+                                                              style="padding: 5px 10px;">{{ notice.get_type_display }}</span>
+                                                                {{ notice.notice }}
+                                                            </td>
+                                                            <td class="text-right">{% notice_time notice.created_time %}</td>
+                                                            <td></td>
+                                                        </tr>
+                                                    {% endfor %}
+                                                    </tbody>
+                                                </table>
+                                                <div class="dataTables_info" id="example23_info" role="status"
+                                                     aria-live="polite" style="font-weight: 400;margin-left: 64px">
+                                                    总计：{{ query_sets.paginator.count }}条
+                                                </div>
+                                                <div class="dataTables_paginate paging_simple_numbers"
+                                                     id="example23_paginate"
+                                                     style="margin-right: 48px;margin-bottom: 46px;">
+                                                    {% build_paginators query_sets filter_condtions precious_orderby search_text request %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function getUrlParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+            var r = window.location.search.substr(1).match(reg); //匹配目标参数
+            if (r != null) return unescape(r[2]);
+            return null; //返回参数值
+        }
+
+            var path = getUrlParam('type');
+            if (path) {
+                $('a[href="?type=' + path + '"]').parent().addClass('active');
+            } else {
+                $('a[href="?"]').parent().addClass('active');
+            }
+    </script>
+{% endblock %}

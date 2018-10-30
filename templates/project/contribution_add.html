@@ -1,0 +1,144 @@
+{% extends "index.html" %}
+{% load tags %}
+{% load static %}
+{% block extra-css %}
+    <link href="{% static 'assets/plugins/layui-formSelects-master/dist/formSelects-v4.css' %}" rel="stylesheet">
+    <style type="text/css">
+        .jqstooltip {
+            position: absolute;
+            left: 0px;
+            top: 0px;
+            visibility: hidden;
+            background: rgb(0, 0, 0) transparent;
+            background-color: rgba(0, 0, 0, 0.6);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000);
+            -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#99000000, endColorstr=#99000000)";
+            color: white;
+            font: 10px arial, san serif;
+            text-align: left;
+            white-space: nowrap;
+            padding: 5px;
+            border: 1px solid white;
+            z-index: 10000;
+        }
+
+        .jqsfield {
+            color: white;
+            font: 10px arial, san serif;
+            text-align: left;
+        }
+
+        .xm-select-parent .select-form {
+            color: #67757c;
+            min-height: 40px;
+            display: initial;
+            width: 100%;
+            padding: 0.375rem 0.75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+    </style>
+    <link rel="stylesheet" href="{% static 'assets/plugins/layui/css/layedit.css' %}">
+{% endblock %}
+{% block wrapper %}
+    <div class="row page-titles">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor">{% if contribution %}编辑{% else %}新建{% endif %}贡献</h3>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body" style="padding:3.2rem;">
+                        <form class="form-horizontal" method="POST"
+                              enctype="multipart/form-data" onsubmit="upform()" style="margin-bottom: 0">
+                            {% csrf_token %}
+                            {{ errors }}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>项目名称</label>
+                                            {{ contribution_form.name }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group ">
+                                            <label>贡献类型</label>
+                                            {{ contribution_form.type }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>贡献</label>
+                                            <textarea id="demo" name="description" style="width:100%;height:415px;">
+                                                {{ contribution.description }}
+                                            </textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>指定人</label>
+                                                {% for use in contribution.user.all %}
+                                                    {{ use }},
+                                                {% endfor %}
+                                                <select name="user" xm-select="selectId" xm-select-search=""
+                                                        xm-select-direction="up" xm-select-skin="info">
+                                                    {% users request %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group ">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-actions">
+                                        <button type="submit" class="btn btn-success">保存
+                                        </button>
+                                        <button type="button" class="btn btn-inverse"
+                                                onclick="window.location.href='{% url "contribution" %}'">
+                                            返回
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'assets/plugins/layui-formSelects-master/dist/formSelects-v4.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/layui/layui.js' %}"></script>
+    <script>
+        layui.use('layedit', function () {
+            var layedit = layui.layedit;
+            layedit.set({
+                uploadImage: {
+                    url: '/project/image/api/' //接口url
+                    , type: 'POST' //默认post
+                }
+            });
+            layedit.build('demo', {
+                height: 415
+            }); //建立编辑器
+        });
+        $('select').children('option[value=""]').text("请选择");
+        $('input').addClass('form-control');
+        $('select').addClass('form-control');
+        $('.xm-input').removeClass('form-control');
+        $('div.xm-input.xm-select').addClass('select-form');
+    </script>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "index.html" %}
+{% block wrapper %}
+    <div class="row page-titles">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor">{{ contribution.name }}</h3>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body" style="padding:3.2rem;">
+                        <div class="card-body">
+                            <h3 class="card-title m-b-0" style="text-align: center">{{ contribution.name }}</h3>
+                        </div>
+                        <div>
+                            <p style="text-align: center">
+                                <small class="text-muted">{{ contribution.created_user }}于{{ contribution.created_time }}创建</small>
+                            </p>
+                            <hr class="m-t-0">
+                        </div>
+                        <div class="card-body">
+                            {% autoescape off %}
+                                {{ contribution.description }}
+                            {% endautoescape %}
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-inverse"
+                                    onclick="window.location.href='{% url "contribution" %}'">
+                                返回
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

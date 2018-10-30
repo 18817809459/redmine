@@ -1,0 +1,280 @@
+{% extends 'index.html' %}
+{% load tags %}
+{% load static %}
+{% block extra-css %}
+    <style>
+        .upload_pic {
+            display: block;
+            width: 100px;
+            height: 100px;
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            border-radius: 5px;
+        }
+
+        .round_icon {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            border-radius: 50%;
+            background-color: #CCCCCC;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        li {
+            list-style: none;
+        }
+
+        .errorlist {
+            margin: 0;
+        }
+    </style>
+{% endblock %}
+{% block wrapper %}
+    <div class="row page-titles">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor">用户</h3>
+        </div>
+        <div class="col-md-7 align-self-center">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'auth_user' %}"></a>员工</li>
+                {% if use %}
+                    <li class="breadcrumb-item">编辑员工</li>
+                {% else %}
+                    <li class="breadcrumb-item">新建员工</li>
+                {% endif %}
+
+            </ol>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body" style="padding:3.2rem;">
+                        <form class="form-horizontal" method="POST"
+                              enctype="multipart/form-data" onsubmit="passwo()" style="margin-bottom: 0">
+                            {% csrf_token %}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <div class="form-group row">
+                                            <label class="control-label col-md-2">用户头像</label>
+                                            <div class="col-md-10">
+                                                <div class="round_icon" id="oDiv">
+                                                    <input type="file" name="head" id="id_head"
+                                                           class="form-control upload_pic">
+                                                    {% if use %}
+                                                        <img src="/media/{{ use.head }}" alt=""
+                                                             style="width: 100%;height: 100%">
+                                                    {% else %}
+                                                        <img src="/media/image/user/mo.jpg" alt=""
+                                                             style="width: 100%;height: 100%">
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="form-group row">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>中文名</label>
+                                            {{ user_forms.first_name }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>英文名</label>
+                                            {{ user_forms.last_name }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>性别</label>
+                                            {{ user_forms.gender }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>入职时间</label>
+                                            {{ user_forms.entry_time }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>部门</label>
+                                            {{ user_forms.department }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>职位</label>
+                                            {{ user_forms.duty }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>密码</label>
+                                            <input type="password" name="password" maxlength="128" required=""
+                                                   id="id_password" onchange="passwo()">
+                                            <small class="form-control-feedback"> 密码须由大、小写字母及数字组合而成，不能使用特殊字符，长度不得少于8个字符
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>手机号码</label>
+                                            {{ user_forms.phone }}
+                                            <small class="form-control-feedback text-danger">{{ errors.phone.0 }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>邮箱</label>
+                                            {{ user_forms.email }}
+                                            <small class="form-control-feedback text-danger">{{ errors.email.0 }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-success">保存
+                                    </button>
+                                    <button type="button" class="btn btn-inverse"
+                                            onclick="window.location.href='{% url "auth_user" %}'">
+                                        返回
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        laydate.render({
+            elem: '#id_entry_time'
+            , type: 'date'
+        });
+
+        function passwo() {
+            upform();
+            reg = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,10}/;
+            pass = $('#id_password').val();
+            if (!reg.test(pass)) {
+                $('#id_password').parent().addClass('has-danger');
+                return false;
+            } else {
+                $('#id_password').parent().removeClass('has-danger');
+                return true;
+            }
+        }
+
+        $('select').children('option[value=""]').text("请选择");
+        $('input[name="first_name"]').attr('required', '');
+        $('input[name="last_name"]').attr('required', '');
+        if ('{{ use }}') {
+            $('input[type="password"]').removeAttr('required');
+            $('input[name="user_permission"]').on('change', function () {
+                $.ajax({
+                    url: "/permission/api/",
+                    type: "POST",
+                    data: {
+                        "user": '{{ use.id }}',
+                        "id": $(this).val(),
+                        "type": $(this).is(":checked"),
+                    },
+                    success: function (data) {
+                    }
+                });
+            })
+        }
+
+        $('input').addClass('form-control');
+        $('select').addClass('form-control');
+        $('#id_head').addClass('upload_pic');
+        timeto($('input[name="entry_time"]'));
+        $('#id_head').on('change', function () {
+            image(this)
+        });
+        if ($('#id_first_name').val()) {
+            $('#id_password').removeAttr('required');
+            $('#id_password1').removeAttr('required');
+        }
+        $('#oDiv>a').remove();
+
+        function imageLoaded(obj, src) {
+            var img = new Image();
+            if (src === undefined) {
+                src = '';
+            }
+            img.onload = function () {
+                obj.src = src;
+            };
+            img.src = src;
+        }
+
+        function image(obj) {
+            var files = obj.files;
+
+            var img = new Image();
+            var render = new FileReader();
+            render.readAsDataURL(files[0]);
+            render.onloadstart = function () {
+//				alert("start")
+            };
+            render.onload = function () {
+                img.src = this.result;
+                img.style.height = "100%";
+                img.style.width = "100%";
+                $(obj).prevAll('img').remove();
+                $(obj).nextAll('img').remove();
+                $(obj).after(img);
+            };
+            render.onloadend = function () {
+//				alert("end");
+            }
+        }
+
+        function timeto(obj) {
+            if (obj.attr('value')) {
+                var time = obj.attr('value');
+                var ti = time.split("/");
+                var a = ti.join("-");
+                obj.attr('value', a);
+            }
+        }
+    </script>
+{% endblock %}

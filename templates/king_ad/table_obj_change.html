@@ -1,0 +1,122 @@
+{% extends "index.html" %}
+{% load tags %}
+{% block extra-css %}
+    <style type="text/css">
+        .filter-select-box {
+            height: 200px !important;
+            width: 100%;
+        }
+
+        .form-group i {
+            font-size: 34px;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+    </style>
+{% endblock %}
+{% block wrapper %}
+    <div class="row page-titles">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor">{% get_model_name admin_class %}</h3>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body" style="padding:3.2rem;">
+                        <form class="form-horizontal" method="POST" onsubmit="upform()" style="margin-bottom: 0">
+                            <div class="form-body">
+                                {% csrf_token %}
+                                {{ model_form.errors }}
+
+                                {% for field in model_form %}
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group ">
+                                                <label>
+                                                    {% if field.field.required %}
+                                                        {{ field.label }}
+                                                    {% else %}
+                                                        {{ field.label }}
+                                                    {% endif %}
+                                                </label>
+
+                                                {% if field.name in admin_class.filter_horizontal %}
+                                                    <div class="col-md-6">
+                                                        {% get_m2m_obj_list admin_class.model field as m2m_obj_listt %}
+                                                        {{ m2m_obj_listt }}
+                                                        {% get_m2m_selected_obj_list model_form field as selected_obj_list %}
+                                                        <select multiple class="filter-select-box"
+                                                                id="id_{{ field.name }}_from">
+                                                            {% for obj in m2m_obj_listt %}
+                                                                {% if obj not in selected_obj_list %}
+                                                                    <option ondblclick="MoveElementTo(this,id_{{ field.name }}_from,id_{{ field.name }}_to)"
+                                                                            value="{{ obj.id }}">{{ obj }}</option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-1">
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <select multiple class="filter-select-box"
+                                                                id="id_{{ field.name }}_to"
+                                                                name="{{ field.name }}" tag="chosen_list">
+                                                            {% for obj in selected_obj_list %}
+                                                                <option ondblclick="id_{{ field.name }}_from"
+                                                                        value="{{ obj.id }}">{{ obj }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                {% else %}
+                                                    {{ field }}
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group row">
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-success">保存
+                                    </button>
+                                    <button type="button" class="btn btn-inverse"
+                                            onclick="window.location.href='{% url 'table_objs' app_name table_name %}'">
+                                        返回
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        if ('{{ table_name }}' == 'tasktype') {
+            $('#id_department').append("<option value='all'>所有部门</option>")
+        }
+        $('select').children('option[value=""]').text("请选择");
+        $('input').addClass('form-control');
+        $('select').addClass('form-control');
+        $('textarea').addClass('form-control');
+        $('textarea').attr('rows', '4');
+
+        function MoveElementTo(ele, target_id, new_target_id) {
+            var opt_ele = "<option ondblclick='MoveElementTo(ele,'" + new_target_id + "','" + target_id + "')' value='" + $(ele).val + "'>" + $(ele).text() + "</option>";
+            $("#" + new_target_id).append(opt_ele);
+            $(ele).remove();
+        }
+
+        function SelectAllChosenDate() {
+            $("select[tag='chosen_list'] option").each(function () {
+                $(this).prop("selected", true)
+            });
+            return true
+        }
+
+    </script>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+{% block container %}
+    <!-- ============================================================== -->
+    <!-- Preloader - style you can find in spinners.css -->
+    <!-- ============================================================== -->
+{#    <div class="preloader">#}
+{#        <svg class="circular" viewBox="25 25 50 50">#}
+{#            <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>#}
+{#        </svg>#}
+{#    </div>#}
+    <!-- ============================================================== -->
+    <!-- Main wrapper - style you can find in pages.scss -->
+    <!-- ============================================================== -->
+    <section id="wrapper">
+        <div class="login-register" style="padding: 11% 0">
+            <div class="login-box">
+                <div class="card-body">
+
+                    <form class="form-horizontal" id="loginform" action="/login/" method="POST">
+                        {% csrf_token %}
+                        <div class="form-group " style="margin-bottom: 40px">
+                            <img src="{% static 'assets/images/logo.png' %}" style="display: block;margin: 0 auto">
+                        </div>
+                        <div class="form-group ">
+                            <input class="form-control" type="text" required="" placeholder="企业邮箱/手机号码" name="username">
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control" type="password" required="" placeholder="密码" name="password">
+                        </div>
+                        <div class="form-group row" style="margin-bottom: -10px;margin-top: -10px">
+                            <div class="col-md-12 font-14">
+                                <a href="javascript:void(0)" id="to-recover" class="pull-right" style="color:#028ee1">忘记密码？</a>
+                            </div>
+                        </div>
+                        {% if login_error %}
+                        <p style="color: #f33155"><i class="mdi mdi-alert-circle"></i>{{ login_error }}</p>
+                        {% endif %}
+                        <div class="form-group text-center m-t-20">
+                            <button class="btn btn-info btn-block text-uppercase waves-effect waves-light" type="submit"
+                                    style="padding: 10px 12px;">登陆
+                            </button>
+                        </div>
+                        <div class="form-group m-b-0">
+                            <div class="col-sm-12 text-center">
+                                <div style="color: #028ee1">注册账号说明</div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

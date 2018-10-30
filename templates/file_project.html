@@ -1,0 +1,118 @@
+{% extends "index.html" %}
+{% load tags %}
+{% load static %}
+{% block extra-css %}
+    <style>
+        .table thead th {
+            font-weight: bold;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #f2f4f8;
+        }
+
+        .form-control {
+            min-height: 40px;
+        }
+    </style>
+
+{% endblock %}
+{% block wrapper %}
+    <div class="row page-titles">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor">项目列表</h3>
+        </div>
+        <div class="col-md-7 align-self-center">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
+                <li class="breadcrumb-item active">项目列表</li>
+            </ol>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <!-- ============================================================== -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row" style="margin-left: 0;margin-right: 0;margin-bottom: -15px;">
+                            <div class="col-md-6">
+                                <form method="get">
+                                    <div class="row" >
+                                        <div style="padding-right: 10px">
+                                            <a href="{{ request.path }}"
+                                               class="btn m-t-10 btn-info" id="all">
+                                                <i class="fa fa-navicon"></i> 全部列表
+                                            </a>
+                                        </div>
+                                        <div style="padding-right: 10px">
+                                            <input type="text" class="form-control m-t-10" placeholder="关键字"
+                                                   name="_q" value="{{ search_text }}">
+                                        </div>
+                                        <div style="padding-right: 10px">
+                                            <button type="submit" class="btn m-t-10 btn-info"
+                                                    style="background: #f2f4f8;border: 1px solid #f2f4f8;color: #67757c">
+                                                <i class="ti-search"></i> 查询
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="row pull-right">
+                                    {% time_search filter_condtions precious_orderby search_text request %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        {% block content %}
+                            <div class="dataTables_wrapper" id="example23_wrapper">
+                                <table id="demo-foo-addrow" class="table table-hover contact-list"
+                                       data-page-size="10">
+                                    <thead>
+                                    <tr class="footable-sortable">
+                                        <th>名称</th>
+                                        <th>类型</th>
+                                        <th>创建时间</th>
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for obj in query_sets %}
+                                        <tr>
+                                            <td>{{ obj.project_name }}</td>
+                                            <td>{{ obj.project_type }}</td>
+                                            <td>{{ obj.created_time|date:"Y/m/d H:i"  }}</td>
+                                            <td><a href="{% url 'file' %}?project={{ obj.id }}"><span
+                                                    class="label label-warning">查看</span></a></td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <div class="dataTables_info" id="example23_info" role="status" aria-live="polite"
+                                     style="font-weight: 400">
+                                    总计：{{ query_sets.paginator.count }}条
+                                </div>
+                                <div class="dataTables_paginate paging_simple_numbers" id="example23_paginate"
+                                     style="margin-right: 48px;margin-bottom: 26px;">
+                                    {% build_paginators query_sets filter_condtions precious_orderby search_text request %}
+                                </div>
+                            </div>
+
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- End PAge Content -->
+    </div>
+{% endblock %}

@@ -1,0 +1,414 @@
+{% extends "index.html" %}
+{% load tags %}
+{% load static %}
+{% block extra-css %}
+    <style>
+        .table thead th {
+            font-weight: bold;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #f2f4f8;
+        }
+
+        .form-control {
+            min-height: 40px;
+        }
+
+        #myuser .form-group {
+            margin-bottom: 1rem
+        }
+
+        .pad_btn .btn {
+            padding: 7px 14px;
+        }
+    </style>
+
+{% endblock %}
+{% block wrapper %}
+    <div class="row page-titles">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor">{% get_model_name admin_class %}列表</h3>
+        </div>
+        <div class="col-md-7 align-self-center">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
+                {% if table_name == 'project' %}
+                    <li class="breadcrumb-item">{% get_model_name admin_class %}</li>
+                {% elif table_name == 'task' %}
+                    <li class="breadcrumb-item">{% get_model_name admin_class %}</li>
+                {% elif table_name == 'examine' %}
+                    <li class="breadcrumb-item">审核</li>
+                    <li class="breadcrumb-item active">{% get_model_name admin_class %}</li>
+                {% elif table_name == 'delay' %}
+                    <li class="breadcrumb-item">审核</li>
+                    <li class="breadcrumb-item active">{% get_model_name admin_class %}</li>
+                {% else %}
+                    {% if table_name == 'projecttype' or table_name == 'tasktype' or table_name == 'role' %}
+                        <li class="breadcrumb-item">配置</li>
+                    {% endif %}
+                    <li class="breadcrumb-item active">{% get_model_name admin_class %}</li>
+                {% endif %}
+            </ol>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <!-- ============================================================== -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row" style="margin-right: 0px;margin-left: -12px;margin-bottom: -15px;">
+                            <div class="col-md-7" style="margin-bottom: 9px;">
+                                <form method="get">
+                                    <div class="row" style="padding-left: 10px;">
+                                        {% if table_name != 'delay' and table_name != 'examine' %}
+                                            {% if table_name == 'project' or table_name == 'task' %}
+                                            {% else %}
+                                                <div style="padding-right: 10px">
+                                                    <a href="{{ request.path }}add/"
+                                                       class="btn m-t-10 btn-danger">
+                                                        <i class="fa fa-plus"></i> 新建{% get_model_name admin_class %}
+                                                    </a>
+                                                </div>
+                                            {% endif %}
+                                        {% endif %}
+                                        <div style="padding-right: 10px">
+                                            <a href="{{ request.path }}"
+                                               class="btn m-t-10 btn-info" id="all">
+                                                <i class="fa fa-navicon"></i> 全部列表
+                                            </a>
+                                        </div>
+                                        <input hidden name="sta" value="" id="sta">
+                                        <div style="padding-right: 10px">
+                                            <input type="text" class="form-control m-t-10" placeholder="关键字"
+                                                   name="_q" value="{{ search_text }}" style="width: 126px;">
+                                        </div>
+                                        {% if admin_class.list_filters %}
+                                            {% for condtion in admin_class.list_filters %}
+                                                <div style="padding-right: 10px">
+                                                    {% render_filter_ele condtion admin_class filter_condtions request %}
+                                                </div>
+                                            {% endfor %}
+                                        {% endif %}
+                                        <div style="padding-right: 10px">
+                                            <button type="submit" class="btn m-t-10 btn-info"
+                                                    style="background: #f2f4f8;border: 1px solid #f2f4f8;color: #67757c">
+                                                <i class="ti-search"></i> 查询
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            {% if table_name == 'project' or table_name == 'task' %}
+                                <div class="col-md-5 pad_btn">
+                                    <div class="row pull-right">
+                                        {% time_search filter_condtions precious_orderby search_text request %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        {% block content %}
+                            <div class="dataTables_wrapper" id="example23_wrapper">
+                                <table id="demo-foo-addrow" class="table table-hover contact-list"
+                                       data-page-size="10">
+                                    <thead>
+                                    <tr class="footable-sortable">
+                                        {% for column in admin_class.label_display %}
+                                            {% build_table_header_column column orderby_key filter_condtions %}
+                                        {% endfor %}
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for obj in query_sets %}
+                                        <tr>
+                                            {% build_table_row request obj admin_class %}
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                <div class="dataTables_info" id="example23_info" role="status" aria-live="polite"
+                                     style="font-weight: 400">
+                                    总计：{{ query_sets.paginator.count }}条
+                                </div>
+                                <div class="dataTables_paginate paging_simple_numbers" id="example23_paginate"
+                                     style="margin-right: 48px;margin-bottom: 26px;">
+                                    {% build_paginators query_sets filter_condtions precious_orderby search_text request %}
+                                </div>
+                            </div>
+                        {% endblock %}
+                        {% if table_name %}
+                            <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog"
+                                 aria-labelledby="exampleModalLabel1" style="display: none;" aria-hidden="true">
+                                <div class="modal-dialog" role="document" style="margin: 9rem auto">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h4 class="modal-title" id="exampleModalLabel1">延期申请</h4>
+                                            <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close"><span aria-hidden="true">×</span></button>
+                                        </div>
+                                        <div class="modal-body" style="padding: 2rem">
+                                            <form id="myuser">
+                                                {% if table_name == 'task' %}
+                                                    <input name="type" value="任务延期" hidden>
+                                                    <div class="form-group">
+                                                        <label>任务名称</label>
+                                                        <label id="name"></label>
+                                                        <input name="task" hidden id="name_id">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>延期原因</label>
+                                                        <textarea name="reason" cols="40" rows="5" id="id_reason"
+                                                                  class="form-control" required></textarea>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>延期时间</label>
+                                                        {{ delay_form.time }}
+                                                    </div>
+                                                {% elif table_name == 'project' %}
+                                                    <div class="form-group">
+                                                        <label>延期类目</label>
+                                                        <select name="type" required="" id="id_type"
+                                                                class="form-control custom-select"
+                                                                onchange="node(this)">
+                                                            <option value="项目延期" selected="">项目延期</option>
+                                                            <option value="节点延期">节点延期</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group" id="project">
+                                                        <label>项目名称</label>
+                                                        <label id="name"></label>
+                                                        <input name="project" hidden id="name_id">
+                                                    </div>
+                                                    <div class="form-group" style="display: none" id="node">
+                                                        <label>项目节点</label>
+                                                        <select name="project_node" id="id_project_node"
+                                                                class="form-control custom-select">
+                                                        </select>
+                                                    </div>
+                                                    <div class="form-group" style="display: none;margin-bottom: 0"
+                                                         id="spare">
+                                                        <input type="checkbox" id="md_checkbox_1" name="spare">
+                                                        <label for="md_checkbox_1" style="font-size: 0.85rem;">
+                                                            该节点及之后节点同步延期
+                                                        </label>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label class="control-label text-right">延期原因</label>
+                                                        <textarea name="reason" cols="40" rows="3" id="id_reason"
+                                                                  class="form-control" required></textarea>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label>延期时间</label>
+                                                        {{ delay_form.time }}
+                                                    </div>
+                                                {% endif %}
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer" style="margin-top: -1rem">
+                                            <div class="form-actions">
+                                                <button type="submit" class="btn btn-success"
+                                                        onclick="delay_save()">保存
+                                                </button>
+                                                <button type="button" class="btn btn-inverse" data-dismiss="modal">
+                                                    关闭
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ============================================================== -->
+    <!-- End PAge Content -->
+    <script src="{% static 'assets/plugins/laydate/laydate.js' %}" type="text/javascript"></script>
+    <script>
+        function getUrlParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+            var r = window.location.search.substr(1).match(reg); //匹配目标参数
+            if (r != null) return unescape(r[2]);
+            return null; //返回参数值
+        }
+
+        var d = new Date();
+        var month = d.getMonth() + 1;
+        newdate = d.getFullYear() + "-" + month + "-" + d.getDate() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+        laydate.render({
+            elem: '#id_time' //指定元素
+            , type: 'datetime'
+            , format: 'yyyy-MM-dd HH:mm'
+            , min: newdate
+            , ready: function () {
+                var t = $('.layui-laydate').css("top");
+                if ('{{ request.user.is_superuser }}' == 'True') {
+                    var top = parseInt(t) - 370;
+                } else {
+                    var top = parseInt(t) - 25;
+                    if ('{{ table_name }}' == 'task') {
+                        if ('{{ request.user.is_admin }}' == 'False') {
+                            var top = parseInt(t) - 370;
+                        }
+                    }
+                }
+                $('.layui-laydate').css("top", top + "px");
+            }
+        });
+        var ul = getUrlParam('sta');
+        if ('{{ table_name }}' == 'project' || '{{ table_name }}' == 'task') {
+            if (ul) {
+                $('#sta').val(ul);
+                var ur = $('#all').attr('href');
+                ur = ur + "?sta=" + ul;
+                $('#all').attr('href', ur);
+            }
+        }
+        if ('{{ table_name }}' == 'project') {
+            if (ul) {
+                $('#projects').addClass('active');
+                $('#project_sta'+ ul).addClass('active');
+                $('#project_sta'+ ul).children().addClass('active');
+            }
+        }
+        if ('{{ table_name }}' == 'task') {
+            if (ul) {
+                $('#task').addClass('active');
+                $('#task_sta'+ ul).addClass('active');
+                $('#task_sta'+ ul).children().addClass('active');
+            }
+        }
+        $('#exampleModal').on('hidden.bs.modal', function () {
+            $('input[name="time"]').val('');
+            $('textarea').val('');
+            $('#project').show();
+            $('#node').hide();
+            $('#spare').hide();
+            $('#id_type').val('项目延期');
+        });
+        $('#id_time').attr('required', 'required');
+        $('input').addClass('form-control');
+        var num = $('thead>tr>th').length - 2;
+        if (num == 0) {
+            $('#cols').remove()
+        }
+        $('#cols').attr('colspan', num);
+
+        function delay(obj) {
+            var id = $(obj).attr('id');
+            var name = $(obj).parent().parent().children().eq(0).text();
+            $('#name').text(name);
+            $('#name_id').val(id);
+        }
+
+
+        function node(obj) {
+            var value = $(obj).val();
+            if (value == "节点延期") {
+                $('#project').hide();
+                $('#node').show();
+                $('#spare').show();
+                $.ajax({
+                    url: "/project/project/api/",
+                    type: "POST",
+                    data: {
+                        "name": 'project_node',
+                        "id": $('#name_id').val(),
+                    },
+                    success: function (data) {
+                        var node = JSON.parse(data);
+                        var node_html = "";
+                        for (var i = 0; i < node.length; i++) {
+                            var a = "<option value='" + node[i].pk + "'>" + node[i].fields.name + "</option>";
+                            node_html += a;
+                        }
+                        $("select[name='project_node']").find("option").remove();
+                        $("select[name='project_node']").append(node_html);
+                    }
+                });
+            }
+            else if (value == "项目延期") {
+                $('#project').show();
+                $('#node').hide();
+                $('#spare').hide();
+            }
+        }
+
+        function delay_save() {
+            var ele = "<label style=\"color: red\">不能为空</label>";
+            if ($('textarea[name=reason]').val() == "") {
+                $('textarea[name=reason]').after(ele)
+            }
+            if ($('input[name=time]').val() == "") {
+                $('input[name=time]').after(ele)
+            }
+            if ($('textarea[name=reason]').val() && $('input[name=time]').val()) {
+                var table = '{{ table_name }}';
+                if (table == 'project') {
+                    data = {
+                        "type": $('select[name=type]').val(),
+                        "project": $('input[name=project]').val(),
+                        "project_node": $('select[name=project_node]').val(),
+                        "spare": $('#md_checkbox_1').is(':checked'),
+                        "reason": $('textarea[name=reason]').val(),
+                        "time": $('input[name=time]').val(),
+                    }
+                }
+                else if (table == 'task') {
+                    data = {
+                        "type": $('input[name=type]').val(),
+                        "task": $('input[name=task]').val(),
+                        "reason": $('textarea[name=reason]').val(),
+                        "time": $('input[name=time]').val(),
+                    }
+                }
+                $.ajax({
+                    url: "/project/delay/api/",
+                    type: "POST",
+                    data: data,
+                    success: function (data) {
+                        $('#exampleModal').modal('hide');
+                        if (data['resole'] != 0) {
+                            var id = data['id'];
+                            $('#' + id).parent().prevAll().eq(0).text("待审核")
+                        }
+                    }
+                });
+            }
+        }
+
+        function active(obj, id, type) {
+            $.ajax({
+                url: "/active/api/",
+                type: "POST",
+                data: {
+                    "id": id,
+                    "type": type,
+                },
+                success: function (data) {
+                    if ($(obj).children().text() == "禁用") {
+                        $(obj).html("<span class='label label-info' >启用</span>")
+                        $(obj).parent().prev().text("禁用")
+                    }
+                    else if ($(obj).text() == "启用") {
+                        $(obj).html("<span class='label label-warning' >禁用</span>")
+                        $(obj).parent().prev().text("启用")
+                    }
+                }
+            });
+        }
+    </script>
+{% endblock %}

@@ -1,0 +1,234 @@
+{% extends "index.html" %}
+{% load static %}
+{% block extra-css %}
+    <link href="{% static 'css/jj/iconfont.css' %}" rel="stylesheet" type="text/css">
+    <style type="text/css">
+        .form-group i {
+            font-size: 2.3rem;
+            vertical-align: middle;
+            margin-left: -5px;
+        }
+    </style>
+{% endblock %}
+{% block wrapper %}
+    <div class="row page-titles">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor">项目流程</h3>
+        </div>
+        <div class="col-md-7 align-self-center">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
+                <li class="breadcrumb-item">项目流程</li>
+                {% if flow %}
+                    <li class="breadcrumb-item active">编辑项目流程</li>
+                {% else %}
+                    <li class="breadcrumb-item active">新建项目流程</li>
+                {% endif %}
+
+            </ol>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body" style="padding:3.2rem;">
+                        <form class="form-horizontal" method="POST" onsubmit="upform()" style="margin-bottom: 0">
+                            {% csrf_token %}
+                            {{ errors }}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>流程名称</label>
+                                            {{ flow_from.flow_name }}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>所属部门</label>
+                                            {{ flow_from.department }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>流程描述</label>
+                                            <textarea name="flow_description" id="id_flow_description" cols="98"
+                                                      rows="4" maxlength="200" required="" class="form-control"
+                                            >{{ flow.flow_description }}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if node %}
+                                    {% for no in node %}
+                                        <div class="row node old">
+                                            <div class="col-md-6">
+                                                <div class="form-group" style="margin-bottom: 15px;">
+                                                    <label></label>
+                                                    <input type="text" name="node_name" required
+                                                           class="form-control" style="width: 90%;margin-right: 6px" disabled
+                                                           placeholder="请输入节点名称"
+                                                           onchange="bor(this)" value="{{ no }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label></label>
+                                                    <div style="width: 210%" class="node-node">
+                                                        {% for key,node_ in node_node.items %}
+                                                            {% if key == no %}
+                                                                {% for no_no in node_ %}
+                                                                    <input type="text" class="form-control old"
+                                                                           name="name" disabled
+                                                                           required=""
+                                                                           id="id_time" placeholder="请输入子节点名称"
+                                                                           value="{{ no_no }}"
+                                                                           style="width: 14%;margin-right: 10px;;margin-top: 10px;">
+                                                                {% endfor %}
+                                                            {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5" style="z-index: -1">
+                                                <div class="form-group row">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="row node">
+                                        <div class="col-md-6">
+                                            <div class="form-group" style="margin-bottom: 15px;">
+                                                <label>环节创建</label>
+                                                <input type="text" name="node_name" required class="form-control"
+                                                       placeholder="请输入环节名称" style="width: 90%;margin-right: 6px"
+                                                       onchange="bor(this)">
+                                            </div>
+                                            <div class="form-group">
+                                                <div style="width: 210%" class="node-node">
+                                                    <input type="text" class="form-control" name="name0"
+                                                           id="id_time" placeholder="请输入子环节名称"
+                                                           style="width: 14%;margin-right: 10px;margin-top: 10px;">
+                                                    <i class="mdi mdi-plus-circle text-success" onclick="add(this)"></i>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5" style="z-index: -1">
+                                            <div class="form-group row">
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            {% if node %}
+                                            {% else %}
+                                                <button type="button"
+                                                        class="btn btn-success control-label col-md-3"
+                                                        style="background-color: #f8f8f8;color: #000000"
+                                                        onclick="addnode()"> + 新建环节
+                                                </button>
+                                            {% endif %}
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5" style="z-index: -1">
+                                    <div class="form-group row">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-success">保存
+                                </button>
+                                <button type="button" class="btn btn-inverse"
+                                        onclick="window.location.href='{% url "flow" %}'">
+                                    返回
+                                </button>
+                            </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+    <script>
+        $('select').children('option[value=""]').text("请选择");
+        $('input').addClass('form-control');
+        $('select').addClass('form-control');
+        $('.node').eq(0).find('label').eq(0).text("环节创建");
+        $('.node').eq(0).find('.form-group').eq(0).find('.mdi').remove();
+        num();
+
+        function bor(obj) {
+            $(obj).css('border', '0px')
+        }
+
+        function addnode() {
+            var flow_html = "<div class=\"row node\">\n" +
+                "                                            <div class=\"col-md-6\">\n" +
+                "                                                <div class=\"form-group\" style=\"margin-bottom: 15px;\">\n" +
+                "                                                    <label></label>\n" +
+                "                                                    <input type=\"text\" name=\"node_name\" required=\"\" class=\"form-control\" style=\"width: 90%;margin-right: 6px;\" placeholder=\"请输入节点名称\" onchange=\"bor(this)\" value=\"\"> <i class=\"mdi mdi-minus-circle text-danger\" onclick=\"delnode(this)\"></i>\n" +
+                "                                                </div>\n" +
+                "                                                <div class=\"form-group\">\n" +
+                "                                                    <label></label>\n" +
+                "                                                    <div style=\"width: 210%\" class=\"node-node\">\n" +
+                "                                                        \n" +
+                "                                                            \n" +
+                "                                                                \n" +
+                "                                                                    <input type=\"text\" class=\"form-control\" name=\"name2\" id=\"id_time\" placeholder=\"请输入子节点名称\" value=\"\" style=\"width: 14%;margin-right: 10px;margin-top: 10px\">\n" +
+                "                                                                \n" +
+                "                                                                \n" +
+                "                                                                    <i class=\"mdi mdi-plus-circle text-success\" onclick=\"add(this)\"></i>  \n" +
+                "                                                                \n" +
+                "                                                            \n" +
+                "                                                        \n" +
+                "                                                            \n" +
+                "                                                        \n" +
+                "                                                    </div>\n" +
+                "                                                </div>\n" +
+                "                                            </div>\n" +
+                "                                            <div class=\"col-md-5\" style=\"z-index: -1\">\n" +
+                "                                                <div class=\"form-group row\">\n" +
+                "                                                </div>\n" +
+                "                                            </div>\n" +
+                "                                        </div>";
+            $('.node:last').after(flow_html);
+            num()
+        }
+
+        function delnode(obj) {
+            $(obj).parent().parent().parent().remove();
+            num()
+        }
+
+        function add(obj) {
+            var flow_html = $(obj).prev().clone(true);
+            flow_html.val('');
+            flow_html.css('margin-right', '10px');
+            if ($(obj).prevAll().length == 1) {
+                $(obj).after(" <i class=\"mdi mdi-minus-circle text-danger\" onclick=\"dele(this)\"></i>");
+            }
+            $(obj).before(flow_html);
+        }
+
+        function dele(obj) {
+            $(obj).prev().prev().remove();
+            if ($(obj).prevAll().length == 2) {
+                $(obj).remove();
+            }
+        }
+
+        function num() {
+            $('.node-node').each(function (i, e) {
+                $(this).find('input').eq(0).css('margin-right', '6px');
+                var name = "name" + i;
+                $(this).find('input').attr('name', name);
+            })
+        }
+    </script>
+{% endblock %}

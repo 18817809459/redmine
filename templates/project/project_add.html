@@ -1,0 +1,806 @@
+{% extends "index.html" %}
+{% load tags %}
+{% load static %}
+{% block extra-css %}
+    <link href="{% static 'assets/plugins/layui-formSelects-master/dist/formSelects-v4.css' %}" rel="stylesheet">
+    <style>
+        .move {
+            font-size: 2.3rem;
+        }
+
+        .nopadding {
+            width: 10%;
+        }
+
+        .nopadding span {
+            width: 10%;
+        }
+
+        .input-group > .form-control:not(:last-child) {
+            border-radius: 0.25rem;
+        }
+
+        .nopadding .form-group {
+            margin-bottom: 20px;
+        }
+
+        .xm-select-parent .select-form {
+            color: #67757c;
+            min-height: 40px;
+            display: initial;
+            width: 100%;
+            padding: 0.375rem 0.75rem;
+            font-size: 1rem;
+            line-height: 1.5;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+    </style>
+{% endblock %}
+{% block wrapper %}
+    <div class="row page-titles">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor">新建项目-{% if type == 'inside' %}内部{% elif type == 'outside' %}
+                外部{% endif %}</h3>
+        </div>
+        <div class="col-md-7 align-self-center">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
+                <li class="breadcrumb-item">项目</li>
+                {% if project %}
+                    <li class="breadcrumb-item"><a href="{% url 'project' %}?sta=1">执行项目</a></li>
+                    <li class="breadcrumb-item active">编辑项目-{% if type == 'inside' %}内部{% elif type == 'outside' %}
+                        外部{% endif %}</li>
+                {% else %}
+                    <li class="breadcrumb-item active">新建项目-{% if type == 'inside' %}内部{% elif type == 'outside' %}
+                        外部{% endif %}</li>
+                {% endif %}
+            </ol>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body" style="padding:3.2rem;">
+                        <form class="form-horizontal" method="POST"
+                              enctype="multipart/form-data" onsubmit="disa()" style="margin-bottom: 0">
+                            {% csrf_token %}
+                            {% if type == 'inside' %}
+                                <input name="tag" value="0" hidden>
+                            {% else %}
+                                <input name="tag" value="1" hidden>
+                            {% endif %}
+                            {% if project %}
+                                <input name="status" value="{{ project.status }}" hidden>
+                                <input name="delay_status" value="{{ project.delay_status }}" hidden>
+                            {% else %}
+                                <input name="status" value="0" hidden>
+                                <input name="delay_status" value="0" hidden>
+                            {% endif %}
+                            <div class="form-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>项目名称</label>
+                                            {{ project_form.project_name }}
+                                            <small class="form-control-feedback text-danger">{{ errors.project_name.0 }}</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>所属部门</label>
+                                            {{ project_form.department }}
+                                            <small class="form-control-feedback text-danger">{{ errors.department.0 }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label>项目类型</label>
+                                            {{ project_form.project_type }}
+                                            <small class="form-control-feedback text-danger">{{ errors.project_type.0 }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group ">
+                                            <label>流程选择</label>
+                                            {{ project_form.flow }}
+                                            <small class="form-control-feedback text-danger">{{ errors.flow.0 }}
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% if type == 'outside' %}
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>合同编号</label>
+                                                {{ project_form.contract_no }}
+                                                <small class="form-control-feedback text-danger">{{ errors.contract_no.0 }}
+                                                </small>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label>项目描述</label>
+                                            <textarea name="priject_description" id="id_priject_description" cols="98"
+                                                      rows="4" maxlength="200" required="" class="form-control"
+                                            >{{ project.priject_description }}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {% if project_user %}
+                                            <div class="form-group ">
+                                                <label>项目托付</label>
+                                                {% for user in project_user %}
+                                                    {{ user.user }}
+                                                {% endfor %}
+                                                <select name="user" xm-select="selectId" xm-select-search=""
+                                                        xm-select-skin="info">
+                                                    {% users request project_user %}
+                                                </select>
+                                            </div>
+                                        {% else %}
+                                            <div class="form-group">
+                                                <label>项目托付</label>
+                                                <select name="user" xm-select="selectId" xm-select-search=""
+                                                        xm-select-skin="info">
+                                                    {% users request %}
+                                                </select>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group example">
+                                                    <label>开始时间</label>
+                                                    <div class="input-group">
+                                                        <div class="input-daterange input-group" id="date-range">
+                                                            {{ project_form.start_time }}
+                                                            <div class="input-group-append">
+                                                            <span class="input-group-text">
+                                                                <i class="icon-calender"></i></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group example">
+                                                    <label>结束时间</label>
+                                                    <div class="input-group">
+                                                        <div class="input-daterange input-group" id="date-range">
+                                                            {{ project_form.end_time }}
+                                                            <div class="input-group-append">
+                                                            <span class="input-group-text">
+                                                                <i class="icon-calender"></i></span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        {% if project_file %}
+                                            <div class="form-group">
+                                                <label>文件上传</label>
+                                                {% for file in project_file %}
+                                                    <div class="row" style="margin-bottom: 18px">
+                                                        <div class="col-md-7">
+                                                            <span>{{ file.file.name }}</span>
+                                                        </div>
+                                                        <div class="col-md-3"><a
+                                                                href="/media/{{ file.file.file }}"
+                                                                download="{{ file.file.name }}">下载</a>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                                <input type="file" id="id_file"
+                                                       multiple="multiple" onchange="upfile(this)"
+                                                       class="form-control">
+                                            </div>
+                                        {% else %}
+                                            <div class="form-group">
+                                                <label>文件上传</label>
+                                                <input type="file" id="id_file"
+                                                       multiple="multiple" onchange="upfile(this)"
+                                                       class="form-control">
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group ">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group ">
+                                            <label>节点创建</label>
+                                        </div>
+                                        <div class="education_fields">
+                                            {% if project_node %}
+                                                <div class="row" style="margin-left: 1px;margin-bottom: 13px;">
+                                                    <div class=" nopadding" style="padding-right: 10px">
+                                                        <div class="form-group">
+                                                            <span>节点名称</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class=" nopadding"
+                                                         style="padding-right: 10px;min-width: 150px">
+                                                        <div class="form-group">
+                                                            <span>流程节点</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class=" nopadding"
+                                                         style="padding-right: 10px;min-width: 150px">
+                                                        <div class="form-group">
+                                                            <span>子节点</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class=" nopadding"
+                                                         style="padding-right: 10px;min-width: 170px">
+                                                        <div class="form-group">
+                                                            <span>时间</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class=" nopadding"
+                                                         style="padding-right: 10px;width: 100px">
+                                                        <div class="form-group">
+                                                            <span>数量</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class=" nopadding"
+                                                         style="padding-right: 10px;width: 100px">
+                                                        <div class="form-group">
+                                                            <span>单位</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class=" nopadding"
+                                                         style="padding-right: 10px;width: 26%;">
+                                                        <div class="form-group">
+                                                            <span>提醒时间</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+                                            {% for node in project_node %}
+                                                <div class="node">
+                                                    <div class="row" style="margin-left: 1px;">
+                                                        <div class=" nopadding"
+                                                             style="padding-right: 10px">
+                                                            <div class="form-group"
+                                                                 style="padding-right: 10px">
+                                                                <input name="name" hidden
+                                                                       value="{{ node.name }}">
+                                                                <span>{{ node.name }}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class=" nopadding"
+                                                             style="padding-right: 10px;min-width: 150px">
+                                                            <div class="form-group">
+                                                                <span>{% if node.node %}
+                                                                    {{ node.node }}{% endif %}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class=" nopadding"
+                                                             style="padding-right: 10px;min-width: 150px">
+                                                            <div class="form-group">
+                                                         <span>{% if node.node_node %}
+                                                             {{ node.node_node }}{% endif %}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class=" nopadding"
+                                                             style="padding-right: 10px;min-width: 170px">
+                                                            <div class="form-group">
+                                                                <span>{{ node.time|date:"Y-m-d" }} {{ node.time|time:"H:i" }}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class=" nopadding"
+                                                             style="padding-right: 10px;width: 100px">
+                                                            <div class="form-group">
+                                                                <span>{{ node.number }}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class=" nopadding"
+                                                             style="padding-right: 10px;width: 100px">
+                                                            <div class="form-group">
+                                                                <span>{{ node.unit }}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class=" nopadding"
+                                                             style="padding-right: 10px;width: 26%;">
+                                                            <div class="form-group">
+                                                                <div class="input-group">
+                                                                    <span style="display: block;width: 160px">{{ node.alert_time|date:"Y-m-d" }} {{ node.alert_time|time:"H:i" }}</span>
+                                                                    <div class="input-group-append"
+                                                                         style="margin-left: 10px">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {% endfor %}
+                                            <div class=" removeclass1 node">
+                                                <div class="row" style="margin-left: 1px;">
+                                                    <div class=" nopadding">
+                                                        <div class="form-group"
+                                                             style="padding-right: 10px">
+                                                            <input type="text" class="form-control" required
+                                                                   name="name"
+                                                                   id="id_name" placeholder="名称">
+                                                        </div>
+                                                    </div>
+                                                    <div class=" nopadding"
+                                                         style="padding-right: 10px;min-width: 150px">
+                                                        <div class="form-group">
+                                                            <select name="node" id="id_node"
+                                                                    class="form-control custom-select nodes"
+                                                                    onchange="nodes(this)"
+                                                                    style="min-width: 140px">
+                                                                <option value='' selected>流程节点</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class=" nopadding"
+                                                         style="padding-right: 10px;min-width: 150px">
+                                                        <div class="form-group">
+                                                            <select name="node_node" id="id_node_node"
+                                                                    class="form-control custom-select node_node"
+                                                                    style="min-width: 140px">
+                                                                <option value='' selected>子节点</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class=" nopadding"
+                                                         style="padding-right: 10px;min-width: 180px">
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control times" required
+                                                                   name="time"
+                                                                   id="id_time" placeholder="结束时间"
+                                                                   style="min-width: 170px">
+                                                        </div>
+                                                    </div>
+                                                    <div class=" nopadding"
+                                                         style="padding-right: 10px;width: 100px">
+                                                        <div class="form-group">
+                                                            <input type="number" class="form-control number" required
+                                                                   name="number"
+                                                                   id="id_number" placeholder="数量"
+                                                                   min="0">
+                                                        </div>
+                                                    </div>
+                                                    <div class=" nopadding"
+                                                         style="padding-right: 10px;width: 100px">
+                                                        <div class="form-group">
+                                                            <input type="text" class="form-control unit" required
+                                                                   name="unit"
+                                                                   id="id_unit"
+                                                                   placeholder="单位">
+                                                        </div>
+                                                    </div>
+                                                    <div class=" nopadding"
+                                                         style="padding-right: 10px;width: 26%;">
+                                                        <div class="form-group">
+                                                            <div class="input-group">
+                                                                <input type="text" class="form-control node_alert_time"
+                                                                       name="node_alert_time"
+                                                                       id="node_alert_time"
+                                                                       placeholder="提醒时间"
+                                                                       style="max-width: 170px;">
+                                                                <div class="input-group-append"
+                                                                     style="margin-left: 10px">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-success">保存
+                                    </button>
+                                    <button type="button" class="btn btn-inverse"
+                                            onclick="window.location.href='{% url "project" %}?sta=1'">
+                                        返回
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'assets/plugins/dff/dff.js' %}" type="text/javascript"></script>
+    <script src="{% static 'assets/plugins/layui-formSelects-master/dist/formSelects-v4.min.js' %}"></script>
+    <script src="{% static 'assets/plugins/layer/layer.js' %}"></script>
+    <script>
+        formSelects.render('selectId');
+        var d = new Date();
+        var month = d.getMonth() + 1;
+        newdate = d.getFullYear() + "-" + month + "-" + d.getDate() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+        if ('{{ request.user.is_superuser}}' == 'False') {
+            $('#id_department option').removeAttr('selected');
+            $('#id_department option[value="{{ request.user.department_id }}"]').attr('selected', '');
+            depar($('#id_department'));
+            $('#id_department').attr("disabled", "disabled");
+        }
+        if ('{{ project }}') {
+            $('#projects').addClass('active');
+            $('#id_department').attr("disabled", "disabled");
+            $('#id_flow').attr("disabled", "disabled");
+            $('#id_project_type').attr("disabled", "disabled");
+            $('#id_contract_no').attr("disabled", "disabled");
+            $('#id_start_time').attr("disabled", "disabled");
+            $('#id_end_time').attr("disabled", "disabled");
+        } else {
+            $('input.xm-hide-input').attr('required', '');
+            var startdate = laydate.render({
+                elem: '#id_start_time'
+                , type: 'datetime'
+                , format: 'yyyy-MM-dd HH:mm'
+                , min: newdate
+                , done: function (value, dates) {
+                    enddate.config.min = {
+                        year: dates.year,
+                        month: dates.month - 1,//关键
+                        date: dates.date,
+                        hours: dates.hours,
+                        minutes: dates.minutes,
+                        seconds: dates.seconds
+                    };
+                    if ($("#id_end_time").val()) {
+                        num(value, $("#id_end_time").val());
+                    } else {
+                        num(value, 0);
+                    }
+                }
+            });
+            var enddate = laydate.render({
+                elem: '#id_end_time'
+                , type: 'datetime'
+                , format: 'yyyy-MM-dd HH:mm'
+                , min: newdate
+                , done: function (value, dates) {
+                    startdate.config.max = {
+                        year: dates.year,
+                        month: dates.month - 1,//关键
+                        date: dates.date,
+                        hours: dates.hours,
+                        minutes: dates.minutes,
+                        seconds: dates.seconds
+                    };
+                    if ($("#id_start_time").val()) {
+                        num($("#id_start_time").val(), value);
+                    } else {
+                        num(0, value);
+                    }
+                }
+            });
+            $('#id_project_type').click(function () {
+                if ($('#id_department').val() == "") {
+                    $('#id_project_type').attr("disabled", "disabled");
+                    layer.open({
+                        content: '请选择部门！',
+                        offset: '400px'
+                    });
+                }
+            });
+            $('#id_flow').click(function () {
+                if ($('#id_department').val() == "") {
+                    $('#id_flow').attr("disabled", "disabled");
+                    layer.open({
+                        content: '请选择部门！',
+                        offset: '400px'
+                    });
+                }
+            });
+            $("select[name='department']").change(function () {
+                $('#id_flow').removeAttr("disabled");
+                $('#id_project_type').removeAttr("disabled");
+                depar(this)
+            });
+        }
+
+
+        function disa() {
+            $('#id_department').removeAttr("disabled");
+            $('#id_flow').removeAttr("disabled");
+            $('#id_project_type').removeAttr("disabled");
+            $('#id_contract_no').removeAttr("disabled");
+            $('#id_start_time').removeAttr("disabled");
+            $('#id_end_time').removeAttr("disabled");
+            $('.chosen-choices .search-choice').each(function (i, e) {
+                var a = parseInt($(this).find('.search-choice-close').attr("data-option-array-index"));
+                var k = $('#optgroup_clickable').find("*").eq(a).val();
+                $('form').append("<input hidden name='user' value='" + k + "'>");
+            });
+        }
+
+
+        if ($('#id_flow').val()) {
+            change($('#id_flow'));
+        }
+        $('#id_flow').on('change', function () {
+            change(this);
+        });
+
+        function nodes(obj) {
+            if ($(obj).val()) {
+                $.ajax({
+                    url: "/project/project/api/",
+                    type: "POST",
+                    data: {
+                        "name": 'node_node',
+                        "id": $(obj).val(),
+                    },
+                    success: function (data) {
+                        var node = JSON.parse(data);
+                        var node_html = "<option value=''></option><option value='' selected style='display:none;'>子节点</option>";
+                        for (var i = 0; i < node.length; i++) {
+                            var a = "<option value='" + node[i].pk + "'>" + node[i].fields.name + "</option>";
+                            node_html += a;
+                        }
+                        $(obj).parent().parent().next().find("select.node_node").find("option").remove();
+                        $(obj).parent().parent().next().find("select.node_node").append(node_html);
+                    }
+                });
+            } else {
+                $(obj).parent().parent().next().find("select.node_node").find("option").remove();
+            }
+        }
+
+        function change(obj) {
+            if ($(obj).val()) {
+                $.ajax({
+                    url: "/project/project/api/",
+                    type: "POST",
+                    data: {
+                        "name": 'node',
+                        "id": $(obj).val(),
+                    },
+                    success: function (data) {
+                        var node = JSON.parse(data);
+                        var node_html = "<option value=''></option><option value='' selected style='display:none;'>流程节点</option>";
+                        for (var i = 0; i < node.length; i++) {
+                            var a = "<option value='" + node[i].pk + "'>" + node[i].fields.node_name + "</option>";
+                            node_html += a;
+                        }
+                        $("select.nodes").find("option").remove();
+                        $("select.nodes").append(node_html);
+                    }
+                });
+            } else {
+                $("select.nodes").find("option").remove();
+                $("select.node_node").find("option").remove();
+            }
+        }
+
+        $('select').children('option[value=""]').text("请选择");
+        $('#id_node').children('option[value=""]').text("流程节点");
+        $('#id_node_node').children('option[value=""]').text("子节点");
+        $('select').addClass('form-control custom-select');
+        $('input').addClass('form-control');
+        $('.xm-input').removeClass('form-control');
+        $('div.xm-input.xm-select').addClass('select-form');
+        var room = 1;
+
+        var node_html = $('.removeclass1 .row').clone();
+        node_html.find('input').val('');
+        node_html.find('button').remove();
+        var node_ht = node_html.html();
+
+        function add() {
+            room++;
+            if ($('.removeclass1 .row').length == 0) {
+                var divtest = '<div class="removeclass1 node" id="add"><div class="row" style="margin-left: 1px;">' + node_ht + '</div></div>';
+                $('.education_fields').append(divtest);
+                change($('#id_flow'));
+            } else {
+                var flow_html = $('.removeclass1 .row').clone();
+                flow_html.find('input').val('');
+                flow_html.find('button').remove();
+                flow_html.find('.node_node').children('option').remove();
+                flow_html.find('.node_node').append('<option value="" selected="" style="display:none;">子节点</option>');
+                var divtest = '<div class="node" id="add"></div>';
+                $('.education_fields').append(divtest);
+                $('#add').append(flow_html);
+            }
+            num($('#id_start_time').val(), $('#id_end_time').val());
+
+        }
+
+        function rem(rid) {
+            $('#' + rid).remove();
+            room--;
+            num($('#id_start_time').val(), $('#id_end_time').val())
+        }
+
+        function up(rid) {
+            var flow_html = $('#' + rid).clone(true);
+            bef = rid - 1;
+            $('#' + rid).remove();
+            $('#' + bef).before(flow_html);
+            num($('#id_start_time').val(), $('#id_end_time').val());
+        }
+
+        function down(rid) {
+            var flow_html = $('#' + rid).clone(true);
+            nex = rid + 1;
+            $('#' + rid).remove();
+            $('#' + nex).after(flow_html);
+            num($('#id_start_time').val(), $('#id_end_time').val());
+        }
+
+        function num(value1, value2) {
+            room = $('.node').length;
+            $('.node').each(function (i, e) {
+                order = i + 1;
+                $(this).find('.move').remove();
+                $(this).attr('id', '' + i);
+                $(this).find('select.nodes').attr('name', 'node' + order);
+                $(this).find('select.node_node').attr('name', 'node_node' + order);
+                $(this).find('input.times').attr('name', 'time' + order);
+                $(this).find('input.number').attr('name', 'number' + order);
+                $(this).find('input.unit').attr('name', 'unit' + order);
+                $(this).find('input.node_alert_time').attr('name', 'node_alert_time' + order);
+                $(this).find('input.times').attr('id', 'id_name_' + i);
+                $(this).find('input.times').removeAttr('lay-key');
+                $(this).find('input.node_alert_time').attr('id', 'node_alert_time_' + i);
+                $(this).find('input.node_alert_time').removeAttr('lay-key');
+                if (value1 && value2) {
+                    va1 = value1.replace("/", "-").replace("/", "-") + ":00";
+                    va2 = value2.replace("/", "-").replace("/", "-") + ":00";
+                    laydate.render({
+                        elem: '#id_name_' + i
+                        , type: 'datetime'
+                        , format: 'yyyy-MM-dd HH:mm'
+                        , min: va1
+                        , max: va2
+                        , ready: function () {
+                            var t = $('.layui-laydate').css("top");
+                            var top = parseInt(t) - 373;
+                            $('.layui-laydate').css("top", top + "px");
+                        }
+                    });
+                    laydate.render({
+                        elem: '#node_alert_time_' + i
+                        , type: 'datetime'
+                        , format: 'yyyy-MM-dd HH:mm'
+                        , min: va1
+                        , max: va2
+                        , ready: function () {
+                            var t = $('.layui-laydate').css("top");
+                            var top = parseInt(t) - 373;
+                            $('.layui-laydate').css("top", top + "px");
+                        }
+                    });
+                }
+                if (i == 0) {
+                    $(this).find('.input-group-append').append("<i\n class=\"mdi mdi-plus-circle move text-success\" onclick=\"add();\"></i>");
+                }
+                else if (i > 0) {
+                    $(this).find('.input-group-append').append("<i class=\"mdi mdi-minus-circle move text-danger\" onclick=\"rem(" + i + ");\"></i>");
+                }
+                if (room >= 2) {
+                    if (i == 0) {
+                        $(this).find('.input-group-append').append("<i\n class=\"mdi mdi-arrow-down-bold-circle move text-info\" onclick=\"down(" + i + ");\"></i>");
+                    }
+                    else if (i == room - 1) {
+                        $(this).find('.input-group-append').append("<i\n class=\"mdi mdi-arrow-up-bold-circle move text-info\" onclick=\"up(" + i + ");\"></i>");
+                    }
+                    else {
+                        $(this).find('.input-group-append').append("<i\n class=\"mdi mdi-arrow-up-bold-circle move text-info\" onclick=\"up(" + i + ");\"></i>\n" +
+                            "<i\n class=\"mdi mdi-arrow-down-bold-circle move text-info\" onclick=\"down(" + i + ");\"></i>");
+                    }
+                }
+            });
+        }
+
+        function upfile(obj) {
+            for (var i = 0; i < $(obj)[0].files.length; i++) {
+                var form_data = new FormData();
+                var file_info = $(obj)[0].files[i];
+                form_data.append('file', file_info);
+                $.ajax({
+                    url: "/project/upload/api/",
+                    type: "POST",
+                    cache: false,
+                    data: form_data,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        if (data['resole'] == 0) {
+                            var file_name = "<div class=\"row\" style=\"margin-top: 18px><div class=\"col-md-7\"><span style=\"\n" +
+                                "    \n" +
+                                "\">" + data['file'] + "</span>" +
+                                "                                                    </div><div class=\"col-md-3\"><span style=\"color: red;\">上传失败</span></div></div>";
+                        } else {
+                            var file_name = "<div class=\"row\" style=\"margin-top: 18px\"><div class=\"col-md-7\"><input type=\"text\" name=\"file\" value=\"" + data['resole'] + "\" hidden><span style=\"\n" +
+                                "   \n" +
+                                "\">" + data['file'] + "</span><i class=\"mdi mdi-close-circle-outline\" onclick=\"del(this)\" title=\"" + data['resole'] + "\"></i>\n" +
+                                "                                                    </div><div class=\"col-md-3\"><span style=\"color: green;\">上传成功</span></div></div>";
+                        }
+                        $(obj).after(file_name);
+                    }
+                });
+            }
+        }
+
+        function depar(obj) {
+            if ($(obj).val()) {
+                $.ajax({
+                    url: "/project/project/api/",
+                    type: "POST",
+                    data: {
+                        "name": $(obj).attr('name'),
+                        "id": $(obj).val(),
+                    },
+                    success: function (data) {
+                        var flow = JSON.parse(data.flow);
+                        var type = JSON.parse(data.type);
+                        var flow_html = "<option value='' selected>请选择</option>";
+                        for (var i = 0; i < flow.length; i++) {
+                            var a = "<option value='" + flow[i].pk + "'>" + flow[i].fields.flow_name + "</option>";
+                            if ('{{ project }}') {
+                                if ('{{ project.flow_id }}' == flow[i].pk) {
+                                    a = "<option value='" + flow[i].pk + "' selected>" + flow[i].fields.flow_name + "</option>";
+                                }
+                            }
+                            flow_html += a;
+                        }
+                        var type_html = "<option value='' selected>请选择</option>";
+                        for (var i = 0; i < type.length; i++) {
+                            var a = "<option value='" + type[i].pk + "'>" + type[i].fields.name + "</option>";
+                            if ('{{ project }}') {
+                                if ('{{ project.project_type_id }}' == flow[i].pk) {
+                                    a = "<option value='" + type[i].pk + "' selected>" + type[i].fields.name + "</option>";
+                                }
+                            }
+                            type_html += a;
+                        }
+                        $("select[name='flow']").find("option").remove();
+                        $("select[name='flow']").append(flow_html);
+                        $("select[name='project_type']").find("option").remove();
+                        $("select[name='project_type']").append(type_html);
+                    }
+                });
+            }
+        }
+    </script>
+{% endblock %}

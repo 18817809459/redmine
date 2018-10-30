@@ -1,0 +1,87 @@
+{% extends "index.html" %}
+{% load tags %}
+{% block wrapper %}
+    <div class="row page-titles">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor">{% get_model_name admin_class %}</h3>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <!-- ============================================================== -->
+        <!-- Start Page Content -->
+        <!-- ============================================================== -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        {% block content %}
+                            <h3 class="panel-title">{% get_model_name admin_class %}
+                            <div class="col-md-10 align-self-center">
+                                <a href="{{ request.path }}add/" class="pull-right">Add</a>
+                            </div>
+                            <div class="table-responsive">
+                                <div id="add-contact" class="modal fade in" tabindex="-1" role="dialog"
+                                     aria-labelledby="myModalLabel" aria-hidden="true">
+                                    {% if admin_class.list_filters %}
+                                        <form class="" method="get">
+                                            {% for condtion in admin_class.list_filters %}
+                                                <div class="col-lg-2">
+                                                    <span>{{ condtion }}</span>
+                                                    {% render_filter_ele condtion admin_class filter_condtions %}
+                                                </div>
+                                            {% endfor %}
+
+                                            <button type="submit" class="btn btn-success">检索</button>
+                                        </form>
+                                    {% endif %}
+                                    <form role="search">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control" placeholder="Search by
+                                                    {% for search_field in admin_class.search_fields %}{{ search_field }}{% endfor %} "
+                                                   name="_q" value="{{ search_text }}">
+                                         <button type="submit" class="btn btn-default">Submit</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        {{ admin_class.list_display.verbose_name }}
+                                        {% for column in admin_class.list_display %}
+                                            {% build_table_header_column column orderby_key filter_condtions %}
+                                        {% endfor %}
+                                        <td></td>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for obj in query_sets %}
+                                        <tr>
+                                            {% build_table_row request obj admin_class %}
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                    <tfoot>
+                                    <tr>
+                                        <td colspan="2">总计：{{ query_sets.paginator.count }}条</td>
+                                        <td colspan="7">
+                                            <ul class="pagination">
+                                                {#                {% for loop_counter in query_sets.paginator.page_range %}#}
+                                                {#                    {% render_page_ele  loop_counter query_sets filter_condtions%}#}
+                                                {#                {% endfor %}#}
+                                                {% build_paginators query_sets filter_condtions precious_orderby search_text %}
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- ============================================================== -->
+        <!-- End PAge Content -->
+    </div>
+
+{% endblock %}

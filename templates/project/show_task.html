@@ -1,0 +1,130 @@
+{% extends 'index.html' %}
+{% block wrapper %}
+    <h3 class="panel-title" style="padding: 1rem 30px">新建任务</h3>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body" style="padding:3.25rem;">
+                        <form class="form-horizontal " method="POST" style="margin-top:2rem"
+                              enctype="multipart/form-data">
+                            {{ object }}
+                            {% csrf_token %}
+                            <div class="form-body" style="line-height: 40px">
+                                <div class="row" style="padding-bottom: 20px">
+                                    <div class="col-md-5">
+                                        <div class="form-group row">
+                                            <label class="control-label text-right col-md-2">任务名称</label>
+                                            <div class="col-md-10">
+                                                <label></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="form-group row">
+                                            <label class="control-label text-right col-md-2">交付时间</label>
+                                            <div class="col-md-10">
+                                                 <label></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="padding-bottom: 20px">
+                                    <div class="col-md-5">
+                                        <div class="form-group row">
+                                            <label class="control-label text-right col-md-2">所属项目</label>
+                                            <div class="col-md-10">
+                                                 <label></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <div class="form-group row">
+                                            <label class="control-label text-right col-md-2">任务类型</label>
+                                            <div class="col-md-10">
+                                                 <label></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="padding-bottom: 20px">
+                                    <div class="col-md-5">
+                                        <div class="form-group row">
+                                            <label class="control-label text-right col-md-2">任务要求</label>
+                                            <div class="col-md-10">
+                                                 <label></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5" style="z-index: -1">
+                                        <div class="form-group row">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="padding-bottom: 20px">
+                                    <div class="col-md-5">
+                                        <div class="form-group row">
+                                            <label class="control-label text-right col-md-2">任务描述</label>
+                                            <div class="col-md-10">
+                                                 <label></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5" style="z-index: -1">
+                                        <div class="form-group row">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="padding-bottom: 20px">
+                                    <div class="col-md-5">
+                                        <div class="form-group row">
+                                            <label class="control-label text-right col-md-2">任务托付</label>
+                                            <div class="col-md-10" style="white-space: nowrap;">
+                                                <label></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5" style="z-index: -1">
+                                        <div class="form-group row">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="padding-bottom: 20px">
+                                    <div class="col-md-5">
+                                        <div class="form-group row">
+                                            <label class="control-label text-right col-md-2">附件添加</label>
+                                            <div class="col-md-10">
+                                                <input type="file" required="" id="id_file"
+                                                       multiple="multiple" onchange="upfile(this)" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5" style="z-index: -1">
+                                        <div class="form-group row">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="padding-bottom: 20px">
+                                    <div class="col-md-5">
+                                        <div class="form-group row">
+                                            <button type="submit"
+                                                    class="btn btn-success control-label col-md-3"
+                                                    style="margin-left: 1rem;background-color: #1976d2"> 确认创建
+                                            </button>
+                                            <div class="col-md-8">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5" style="z-index: -1">
+                                        <div class="form-group row">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

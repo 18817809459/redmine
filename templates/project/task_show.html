@@ -1,0 +1,456 @@
+{% extends "index.html" %}
+{% load static %}
+{% load tags %}
+{% block extra-css %}
+    <style>
+        .form-group label {
+            font-weight: bold;
+        }
+
+        .profile-tab li a.nav-link.active {
+            border: 0;
+            color: #67757c;
+        }
+
+        .table thead th, .table td {
+            padding: 1.35rem 0.75rem;
+            font-weight: 300;
+        }
+    </style>
+{% endblock %}
+{% block wrapper %}
+    <div class="row page-titles">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor">任务详情</h3>
+        </div>
+        <div class="col-md-7 align-self-center">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
+                <li class="breadcrumb-item">任务</li>
+                {% if task.status == 0 %}
+                    <li class="breadcrumb-item"><a href="{% url 'task' %}?sta=0">待执行任务</a></li>
+                {% elif task.status == 1 or task.status == 2 or task.status == 5%}
+                    <li class="breadcrumb-item"><a href="{% url 'task' %}?sta=1">执行任务</a></li>
+                {% else %}
+                    <li class="breadcrumb-item"><a href="{% url 'task' %}?sta=3">历史任务</a></li>
+                {% endif %}
+                <li class="breadcrumb-item active">{{ task.name }}</li>
+            </ol>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body" style="padding:3.8rem;">
+                        <div class="form-body">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-2">任务名称</label>
+                                        <div class="col-md-10">
+                                            <span>{{ task.name }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-2">交付时间</label>
+                                        <div class="col-md-10">
+                                            <span>{{ task.end_time }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-2">所属项目</label>
+                                        <div class="col-md-10">
+                                            <span>{{ task.project }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-2">提醒时间</label>
+                                        <div class="col-md-10">
+                                            <span>{{ task.alert_time }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-2">任务要求</label>
+                                        <div class="col-md-10">
+                                            <span>{{ task.require }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-2">任务类型</label>
+                                        <div class="col-md-10">
+                                            <span>{{ task.task_type }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-2">任务描述</label>
+                                        <div class="col-md-10">
+                                            <span>{{ task.description }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5" style="z-index: -1">
+                                    <div class="form-group row">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-2">任务托付</label>
+                                        <div class="col-md-10" style="white-space: nowrap;">
+                                        <span>
+                                            {% for user in task_user %}
+                                                {{ user.user }},
+                                            {% endfor %}
+                                        </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-2">委托方</label>
+                                        <div class="col-md-10" style="white-space: nowrap;">
+                                            {{ task.created_user }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-2">附件添加</label>
+                                        <div class="col-md-10">
+                                            {% if task_file %}
+                                                {% for file in task_file %}
+                                                    <div class="row" style="margin-bottom: 18px">
+                                                        <div class="col-md-7">
+                                                            <span>{{ file.file.name }}</span>
+                                                        </div>
+                                                        <div class="col-md-3"><a href="/media/{{ file.file.file }}"
+                                                                                 download="{{ file.file.name }}">下载</a>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            {% else %}
+                                                <span>None</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5" style="z-index: -1">
+                                    <div class="form-group row">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <div class="form-group row">
+                                        <label class="control-label col-md-2">任务状态</label>
+                                        <div class="col-md-10">
+                                            <span id="status">{{ task.get_status_display }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-5" style="z-index: -1">
+                                    <div class="form-group row">
+                                    </div>
+                                </div>
+                            </div>
+                            <form class="form-horizontal" method="POST" style="margin-bottom: 2px;">
+                                {{ error }}
+                                {% csrf_token %}
+                                <input hidden name="class" value="restart" id="class">
+                                <div class="row" style="padding-bottom: 20px;display: none" id="time">
+                                    <div class="col-md-5">
+                                        <div class="form-group">
+                                            <label>交付时间</label>
+                                            <div class="input-group">
+                                                <input type="text" name="end_time" id="id_end_time"
+                                                       class="form-control">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text"><i class="icon-calender"></i></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5" style="z-index: -1">
+                                        <div class="form-group row">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="padding-bottom: 20px;display: none" id="time1">
+                                    <div class="col-md-5">
+                                        <div class="form-group">
+                                            <label>提醒时间</label>
+                                            <div class="input-group">
+                                                <input type="text" name="alert_time" id="id_alert_time"
+                                                       class="form-control">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text"><i class="icon-calender"></i></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5" style="z-index: -1">
+                                        <div class="form-group row">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-success" id="btn1" style="display: none">保存
+                                    </button>
+                                    {% show_btn request 'task' task %}
+                                    <button type="button" class="btn btn-inverse"
+                                            onclick="window.location.href='{% url "task" %}?sta={% if task.status == 1 or task.status == 2 or task.status == 5 %}1{% elif task.status == 0 %}0{% else %}3{% endif %}'">
+                                        返回
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <ul class="nav nav-tabs profile-tab" role="tablist" style="background-color: #f2f2f2;border: 0">
+                        <li class="nav-item" style="width: 33.2%"><a class="nav-link active" data-toggle="tab"
+                                                                     href="#log" role="tab"
+                                                                     style="text-align: center"
+                                                                     onclick="tab_change(this)">操作记录</a>
+                        </li>
+                        <li style="width: 0.1%;background-color: #ffffff"></li>
+                        <li class="nav-item" style="width: 33.2%"><a class="nav-link" data-toggle="tab" href="#discuss"
+                                                                     role="tab" style="text-align: center"
+                                                                     onclick="tab_change(this)">沟通记录</a>
+                        </li>
+                        <li style="width: 0.1%;background-color: #ffffff"></li>
+                        <li class="nav-item" style="width: 33.2%"><a class="nav-link" data-toggle="tab"
+                                                                     href="#files"
+                                                                     role="tab" style="text-align: center"
+                                                                     onclick="tab_change(this)">文件记录</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="log" role="tabpanel">
+                            <div class="card-body" style="padding: 1.25rem 3.6rem .6rem">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>操作时间</th>
+                                        <th>操作记录</th>
+                                        <th>操作人</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for task_log in task_logs %}
+                                        <tr>
+                                            <td>{{ task_log.created_time|date:"Y/m/d H:i" }}</td>
+                                            <td>{{ task_log.created_user }}{{ task_log.description }}</td>
+                                            <td>{{ task_log.created_user }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="discuss" role="tabpanel">
+                            <div class="card-body" style="padding: 1.25rem 3.6rem .6rem">
+                                <form class="form-horizontal" method="POST"
+                                      enctype="multipart/form-data" style="margin-bottom: 0px">
+                                    {% csrf_token %}
+                                    <div class="form-body">
+                                        {% for task_discuss in task_discusses %}
+                                            <div class="row" style="border-bottom: 1px solid #f3f1f1">
+                                                <div class="col-md-1" style="max-width: 6.5%;padding-top: 16px">
+                                                    <img src="/media/{{ task_discuss.created_user.head }}"
+                                                         alt="user" style="width: 45px;border-radius: 100%;">
+                                                </div>
+                                                <div class="col-md-11" style="padding-left: 0px;padding-top: 16px">
+                                                    <div class="row">{{ task_discuss.created_user }}：{{ task_discuss.discuss }}</div>
+                                                    {% task_discuss task_discuss %}
+                                                    <div class="row"
+                                                         style="padding: 16px 0;font-size: 0.9rem">{{ task_discuss.created_time|date:"Y/m/d H:i:s" }}</div>
+                                                </div>
+                                            </div>
+                                        {% endfor %}
+                                        <div class="row" style="padding-top: 25px">
+                                            <div class="col-md-5">
+                                                <div class="form-group row">
+                                                    <label class="control-label col-md-2">任务留言</label>
+                                                    <div class="col-md-10">
+                                            <textarea name="discuss" id="id_discuss" cols="98" rows="4"
+                                                      maxlength="200" class="form-control"></textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5" style="z-index: -1">
+                                                <div class="form-group row">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-5">
+                                                <div class="form-group row">
+                                                    <label class="control-label col-md-2"></label>
+                                                    <div class="col-md-10">
+                                                        <input type="file" id="id_file"
+                                                               multiple="multiple" onchange="upfile(this)"
+                                                               class="form-control">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-5" style="z-index: -1">
+                                                <div class="form-group row">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-actions" style="margin-bottom: 30px">
+                                            <button type="submit" class="btn btn-success" href="discuss_end"
+                                                    onclick="tab_change(this)">保存
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="files" role="tabpanel">
+                            <div class="card-body" style="padding: 1.25rem 3.6rem .6rem">
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th>上传时间</th>
+                                        <th>文件名称</th>
+                                        <th>上传人</th>
+                                        <th>操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% if files %}
+                                        {% for file in files %}
+                                            <tr>
+                                                <td>{{ file.created_time|date:"Y/m/d H:i" }}</td>
+                                                <td>{{ file.name }}</td>
+                                                <td>{{ file.created_user }}</td>
+                                                <td><a href="/media/{{ file.file }}" download="{{ file.name }}"><span
+                                                        class="label label-danger"
+                                                        style="background-color:#36d9d1;">下载</span></a></td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% else %}
+                                        <tr>
+                                            <td colspan="4" style="text-align: center">无记录</td>
+                                        </tr>
+                                    {% endif %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'assets/plugins/laydate/laydate.js' %}" type="text/javascript"></script>
+    <script>
+        var tab = sessionStorage.getItem('tab');
+        if (tab) {
+            if (tab == '#discuss') {
+                $('.tab-pane').removeClass('active');
+                $('a.nav-link').removeClass('active');
+                $('#discuss').addClass('active show');
+                $('a.nav-link[href="#discuss"]').addClass('active show')
+            } else if (tab == '#files') {
+                $('.tab-pane').removeClass('active');
+                $('a.nav-link').removeClass('active');
+                $('#files').addClass('active show');
+                $('a.nav-link[href="#files"]').addClass('active show')
+            } else if (tab == 'discuss_end') {
+                $('.tab-pane').removeClass('active');
+                $('a.nav-link').removeClass('active');
+                $('#discuss').addClass('active show');
+                $('a.nav-link[href="#discuss"]').addClass('active show');
+                var h = $(document).height();
+                $(document).scrollTop(h);
+                sessionStorage.setItem('tab', '#discuss');
+            }
+        } else {
+            sessionStorage.setItem('tab', '#log');
+        }
+
+        function tab_change(obj) {
+            sessionStorage.setItem('tab', $(obj).attr('href'));
+        }
+
+        function supen() {
+            $('#class').val('supend')
+        }
+
+        $('#task').addClass('active');
+        var d = new Date();
+        var month = d.getMonth() + 1;
+        newdate = d.getFullYear() + "-" + month + "-" + d.getDate() + " " + d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds();
+        laydate.render({
+            elem: '#id_end_time'
+            , type: 'datetime'
+            , format: 'yyyy-MM-dd HH:mm'
+            , min: newdate
+        });
+        laydate.render({
+            elem: '#id_alert_time'
+            , type: 'datetime'
+            , format: 'yyyy-MM-dd HH:mm'
+            , min: newdate
+        });
+
+        function change() {
+            $('#time').show();
+            $('#time1').show();
+            $('#btn1').show();
+            $('#btn').hide();
+            $('#btn2').hide();
+            $('input[name="end_time"]').attr('required', '')
+        }
+
+        function zhix() {
+            $.ajax({
+                url: "/project/task_status/api/",
+                type: "POST",
+                data: {
+                    "id": {{ task.id }},
+                },
+                success: function (data) {
+                    if (data['resole'] == 1) {
+                        window.location.reload()
+                    }
+                    else if (data['resole'] == 0) {
+                        alert("项目未通过审批，请耐心等待！")
+                    }
+                    else if (data['resole'] == 4) {
+                        alert("项目也结束！")
+                    }
+                }
+            });
+        }
+    </script>
+{% endblock %}

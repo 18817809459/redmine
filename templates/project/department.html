@@ -1,0 +1,192 @@
+{% extends "index.html" %}
+{% load tags %}
+{% load static %}
+{% block extra-css %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/jj/iconfont.css' %}">
+    <style>
+        .table thead th {
+            font-weight: bold;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background: #f2f4f8;
+        }
+
+        .contact-page-aside > .sidebar-nav > ul > li.active > a {
+            border-left: 0px;
+        }
+
+        .contact-page-aside > .sidebar-nav > ul > li > a i {
+            width: 12px;
+            font-size: 12px;
+        }
+
+        .contact-page-aside .sidebar-nav ul li a {
+            padding: 13px 35px 4px 40px;
+        }
+    </style>
+
+{% endblock %}
+{% block wrapper %}
+    <div class="row page-titles">
+        <div class="col-md-5 align-self-center">
+            <h3 class="text-themecolor">部门列表</h3>
+        </div>
+        <div class="col-md-7 align-self-center">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'index' %}">首页</a></li>
+                <li class="breadcrumb-item">部门</li>
+                <li class="breadcrumb-item">部门列表</li>
+            </ol>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <!-- .left-right-aside-column-->
+                    <div class="contact-page-aside" style="min-height: 700px">
+                        <!-- .left-aside-column-->
+                        <div class="left-aside bg-light-part sidebar-nav active">
+                            <ul class="list-style-none">
+                                {% for i in count %}
+                                    {% if i.id %}
+                                        <li style="position: relative"><a href="?department={{ i.id }}">{{ i.name }}
+                                            <span>{{ i.count }}</span></a>
+                                            <a style="position: absolute;left: 17px;top: 17px;padding: 0"
+                                               href="{% url 'table_obj_change' 'user' 'department' i.id %}">
+                                                <i class="iconfont icon-bianji text-info"></i></a>
+                                        </li>
+                                    {% else %}
+                                        <li><a href="?department={{ i.id }}"
+                                               style="padding: 26px 35px 10px 40px;font-weight: bold;">{{ i.name }}<span>{{ i.count }}</span></a>
+                                        </li>
+                                        <li class="divider" style="margin: 12px 20px"></li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <!-- /.left-aside-column-->
+                        <div class="right-aside ">
+                            <div class="right-page-header">
+                                <div class="d-flex">
+                                    <div class="align-self-center">
+                                        <h4 class="card-title m-t-10">部门 / 成员 </h4></div>
+                                    <div class="ml-auto">
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <div class="dataTables_wrapper" id="example23_wrapper">
+                                        <table id="demo-foo-addrow"
+                                               class="table m-t-30 table-hover no-wrap contact-list"
+                                               data-page-size="10">
+                                            <thead>
+                                            <tr class="footable-sortable">
+                                                {% if user.is_superuser %}
+                                                    <th>经理</th>
+                                                {% endif %}
+                                                <th>中文名</th>
+                                                <th>英文名</th>
+                                                <th>手机号</th>
+                                                <th>企业邮箱</th>
+                                                <th>入职时间</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            {% for obj in query_sets %}
+                                                <tr>
+                                                    {% if user.is_superuser %}
+                                                        <td>
+                                                            {% if obj.is_admin %}
+                                                                <input type="checkbox" id="is_admin_{{ obj.id }}"
+                                                                       name="is_admin"
+                                                                       checked onchange="addadmin(this)"> <label
+                                                                    for="is_admin_{{ obj.id }}"></label>
+                                                            {% else %}
+                                                                <input type="checkbox" id="is_admin_{{ obj.id }}"
+                                                                       name="is_admin" onchange="addadmin(this)"> <label
+                                                                    for="is_admin_{{ obj.id }}"></label>
+                                                            {% endif %}
+                                                        </td>
+                                                    {% endif %}
+                                                    <td>{{ obj.first_name }}</td>
+                                                    <td>{{ obj.last_name }}</td>
+                                                    <td>{{ obj.phone }}</td>
+                                                    <td>{{ obj.email }}</td>
+                                                    <td>{{ obj.entry_time|date:"Y/m/d" }}</td>
+                                                </tr>
+                                            {% endfor %}
+                                            </tbody>
+                                        </table>
+                                        <div class="dataTables_info" id="example23_info" role="status"
+                                             aria-live="polite"
+                                             style="font-weight: 400">
+                                            总计：{{ query_sets.paginator.count }}条
+                                        </div>
+                                        <div class="dataTables_paginate paging_simple_numbers" id="example23_paginate"
+                                             style="margin-right: 48px;margin-bottom: 26px;">
+                                            {% build_paginators query_sets filter_condtions precious_orderby search_text request %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- .left-aside-column-->
+                            </div>
+                            <!-- /.left-right-aside-column-->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            function getUrlParam(name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+                var r = window.location.search.substr(1).match(reg); //匹配目标参数
+                if (r != null) return unescape(r[2]);
+                return null; //返回参数值
+            }
+
+            var path = getUrlParam('department');
+            if (path) {
+                $('a[href="?department=' + path + '"]').parent().addClass('active');
+            } else {
+                $('a[href="?department="]').parent().addClass('active');
+            }
+
+
+            function addadmin(obj) {
+                var is_admin;
+                if ($(obj).is(':checked'))
+                    is_admin = 1;
+                else
+                    is_admin = 0;
+                $.ajax({
+                    url: "/department/admin/",
+                    type: "POST",
+                    data: {
+                        "id": $(obj).attr('id').replace(/[^0-9]/ig, ""),
+                        "is_admin": is_admin
+                    },
+                    success: function (data) {
+                    }
+                });
+            }
+
+            function edit() {
+                $.ajax({
+                    type: "POST",   //提交的方法
+                    url: "/department/{{ departments.id }}/change/", //提交的地址
+                    data: {
+                        "name": $('#id_department_name').val(),
+                    },
+                    async: false,
+                    error: function (request) {  //失败的话
+                        alert(request);
+                    },
+                    success: function (data) {  //成功
+                        $('#exampleModal').modal('hide');
+                        location.reload()
+                    }
+                });
+            }
+        </script>
+{% endblock %}
